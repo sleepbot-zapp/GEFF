@@ -1,23 +1,12 @@
 class User:
     def __init__(self, data) -> None:
         self._data = data
+        self.avatar_url = self._data.get('avatar_url')
+        self.banner_url = self._data.get('banner_url')
+        self.profile_url = self._data.get('profile_url') 
+        self.username = self._data.get('username')
+        self.display_name = self._data.get('display_name')
 
-    @property
-    def avatar_url(self):
-        return self._data.get('avatar_url')
-
-    @property
-    def banner_url(self):
-        return self._data.get('banner_url')
-
-    @property
-    def profile_url(self):
-        return self._data.get('profile_url') 
-    
-    @property
-    def username(self):
-        return self._data.get('username')
-    
-    @property
-    def display_name(self):
-        return self._data.get('display_name')
+    def __repr__(self) -> str:
+        p = ', '.join([f"{i}:{self.__dict__[i]}" for i in self.__dict__ if not i.startswith('_')])
+        return f"User({p})"
