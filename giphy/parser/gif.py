@@ -26,6 +26,5 @@ class Gif:
         self.images = [Image(self._data.get('images')[i]) for i in self._data.get('images')]
         self.user = User(self._data.get('user'))
     
-    def __repr__(self) -> str:
-        p = ', '.join([f"{i}:{self.__dict__[i]}" for i in self.__dict__ if not i.startswith('_')])
-        return f"Gif({p})"
+    def __repr__(self) -> str: 
+        return f"Gif({', '.join([f'{i}: {self.__dict__[i]}' for i in self.__dict__ if not i.startswith('_')])})"
