@@ -1,3 +1,6 @@
 from .giphy import *
 
-__all__ = {"Sticker", "GIF"}
+__all__ = {
+    "Sticker",
+    "GIF",
+}
