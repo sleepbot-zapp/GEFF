@@ -257,20 +257,3 @@ class Emoji:
         if not data:
             return None
         return EmojiParser(data)
-
-
-"""
-TODO:                        Objects:
-RandomID: X                  Implements all Giphy objects!
-Emoji: X
-Emoji Variation: X
-GIF(s) by id: X X
-
-Upload:
-
-Categories: X
-Autocomplete: X
-Channel Search: X
-Search Suggestion: X
-Trending Search: X
-"""
