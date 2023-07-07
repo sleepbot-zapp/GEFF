@@ -8,4 +8,4 @@ class User:
         self.display_name = self._data.get("display_name")
 
     def __repr__(self) -> str:
-        return f"User({', '.join([f'{i}: {self.__dict__[i]}' for i in self.__dict__ if not i.startswith('_')])})"
+        return f"User(username={self.username}, display_name={self.display_name})"
