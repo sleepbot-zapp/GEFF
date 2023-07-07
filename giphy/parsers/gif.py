@@ -2,6 +2,7 @@ from .image import Image
 from .user import User
 
 
+
 class Gif:
     def __init__(self, data) -> None:
         self._data = data
@@ -23,11 +24,10 @@ class Gif:
         self.import_datetime = self._data.get("import_datetime")
         self.is_sticker = bool(self._data.get("is_sticker"))
         self.username = self._data.get("username")
-        # self.user = User(self._data.get('user')) # does not works
-
-    @property
-    def user(self) -> User:
-        return User(self._data.get("user"))
+        try:
+            self.user = User(self._data.get('user'))
+        except AttributeError:
+            self.user = self.username
 
     @property
     def images(self) -> list[Image]:
