@@ -12,4 +12,4 @@ class Image:
         self.frames = self._data.get("frames")
 
     def __repr__(self) -> str:
-        return f"Image({', '.join([f'{i}: {self.__dict__[i]}' for i in self.__dict__ if not i.startswith('_')])})"
+        return f"Image(url={self.url})"
