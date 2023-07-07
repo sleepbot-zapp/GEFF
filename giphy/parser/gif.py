@@ -23,6 +23,7 @@ class Gif:
         self.import_datetime = self._data.get('import_datetime')
         self.is_sticker = bool(self._data.get("is_sticker"))
         self.username = self._data.get('username')
+        #self.user = User(self._data.get('user')) # does not works
 
     @property
     def user(self):
