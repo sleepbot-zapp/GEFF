@@ -28,6 +28,7 @@ class Gif:
             self.user = User(self._data.get('user'))
         except AttributeError:
             self.user = self.username
+
         try:
             self.is_emoji = True if self._data.get("variation_count") >= 0 else False
         except TypeError:
@@ -35,6 +36,7 @@ class Gif:
         if self.is_emoji:
             self.variation_count = self._data.get("variation_count")
     
+
     @property
     def images(self) -> list[Image]:
         return [Image(self._data.get("images")[i]) for i in self._data.get("images")]

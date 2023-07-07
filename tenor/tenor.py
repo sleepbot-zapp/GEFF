@@ -1,6 +1,7 @@
 from __future__ import annotations
 import httpx
 from typing import TYPE_CHECKING
+from .parsers import Response, Category
 
 if TYPE_CHECKING:
     from typing import Optional
@@ -41,7 +42,12 @@ class GIF:
             "limit": limit,
             "pos": pos,
         }
-        return httpx.get(f"{self.BaseUrl}search", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}search", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(Response(data[i]) for i in range(len(data)))
 
     def featured(
         self,
@@ -70,13 +76,18 @@ class GIF:
             "limit": limit,
             "pos": pos,
         }
-        return httpx.get(f"{self.BaseUrl}featured", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}featured", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(Response(data[i]) for i in range(len(data)))
 
     def categories(
         self,
         *,
         client_key: Optional[str] = None,
-        _type: Optional[str] = "featured",
+        type: Optional[str] = "featured",
         country: Optional[str] = "US",
         locale: Optional[str] = "en_US",
         contentfilter: Optional[str] = "off",
@@ -84,12 +95,17 @@ class GIF:
         params = {
             "key": self.api_key,
             "client_key": client_key,
-            "type": _type,
+            "type": type,
             "country": country,
             "locale": locale,
             "contentfilter": contentfilter,
         }
-        return httpx.get(f"{self.BaseUrl}categories", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}categories", params=params).json()['tags']
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(Response(data[i]) for i in range(len(data)))
 
     def search_suggestions(
         self,
@@ -108,7 +124,12 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        return httpx.get(f"{self.BaseUrl}search_suggestions", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}search_suggestions", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(i for i in data)
 
     def autocomplete(
         self,
@@ -127,7 +148,12 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        return httpx.get(f"{self.BaseUrl}autocomplete", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}autocomplete", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(i for i in data)
 
     def trending_terms(
         self,
@@ -146,11 +172,16 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        return httpx.get(f"{self.BaseUrl}trending_terms", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}trending_terms", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(i for i in data)
 
     def registershare(
         self,
-        _id: str = None,
+        id: str = None,
         *,
         client_key: Optional[str] = None,
         country: Optional[str] = "US",
@@ -160,7 +191,7 @@ class GIF:
     ):
         params = {
             "key": self.api_key,
-            "id": _id,
+            "id": id,
             "client_key": client_key,
             "country": country,
             "locale": locale,
@@ -186,4 +217,9 @@ class GIF:
             "locale": locale,
             "media_filter": media_filter,
         }
-        return httpx.get(f"{self.BaseUrl}posts", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}posts", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(i for i in data)
