@@ -42,7 +42,11 @@ class GIF:
             "limit": limit,
             "pos": pos,
         }
-        data = httpx.get(f"{self.BaseUrl}search", params=params).json()["results"]
+        data = httpx.get(f"{self.BaseUrl}search", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
         return tuple(Response(data[i]) for i in range(len(data)))
 
     def featured(
@@ -73,6 +77,10 @@ class GIF:
             "pos": pos,
         }
         data = httpx.get(f"{self.BaseUrl}featured", params=params).json()["results"]
+        try:
+            data = data['results']
+        except KeyError:
+            return data
         return tuple(Response(data[i]) for i in range(len(data)))
 
     def categories(
@@ -93,7 +101,11 @@ class GIF:
             "contentfilter": contentfilter,
         }
         data = httpx.get(f"{self.BaseUrl}categories", params=params).json()['tags']
-        return tuple(Category(i) for i in data)
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(Response(data[i]) for i in range(len(data)))
 
     def search_suggestions(
         self,
@@ -112,7 +124,12 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        return tuple(i for i in httpx.get(f"{self.BaseUrl}search_suggestions", params=params).json()['results'])
+        data = httpx.get(f"{self.BaseUrl}search_suggestions", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(i for i in data)
 
     def autocomplete(
         self,
@@ -131,7 +148,12 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        return tuple(i for i in httpx.get(f"{self.BaseUrl}autocomplete", params=params).json()['results'])
+        data = httpx.get(f"{self.BaseUrl}autocomplete", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(i for i in data)
 
     def trending_terms(
         self,
@@ -150,7 +172,12 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        return tuple(i for i in httpx.get(f"{self.BaseUrl}trending_terms", params=params).json())
+        data = httpx.get(f"{self.BaseUrl}trending_terms", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(i for i in data)
 
     def registershare(
         self,
@@ -190,5 +217,9 @@ class GIF:
             "locale": locale,
             "media_filter": media_filter,
         }
-        data = httpx.get(f"{self.BaseUrl}posts", params=params).json()['results']
-        return tuple(Response(i) for i in data)
+        data = httpx.get(f"{self.BaseUrl}posts", params=params).json()
+        try:
+            data = data['results']
+        except KeyError:
+            return data
+        return tuple(i for i in data)
