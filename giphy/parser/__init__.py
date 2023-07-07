@@ -1,6 +1,6 @@
 from .gif import *
 
 
-__all__ ={
+__all__ = {
     "Gif",
 }

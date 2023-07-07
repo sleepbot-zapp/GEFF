@@ -2,8 +2,9 @@ from __future__ import annotations
 import httpx
 from .parser import Gif
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from typing import Optional, List
+    from typing import Optional
 
 
 class GIF:
@@ -12,7 +13,7 @@ class GIF:
     UrlTag = "https://api.giphy.com/v1/tags/related/"
     UrlChannel = "https://api.giphy.com/v1/channels/search"
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str) -> None:
         self.api_key = api_key
 
     def trending(
@@ -22,17 +23,17 @@ class GIF:
         offset: Optional[int] = None,
         rating: Optional[str] = None,
         random_id: Optional[str] = None,
-        bundle: Optional["str"] = None
-    ):
+        bundle: Optional["str"] = None,
+    ) -> list[Gif]:
         params = {
             "api_key": self.api_key,
             "limit": limit,
             "offset": offset,
             "rating": rating,
             "random_id": random_id,
-            "bundle": bundle
+            "bundle": bundle,
         }
-        data = httpx.get(f"{self.BaseUrl}trending", params=params).json()['data']
+        data = httpx.get(f"{self.BaseUrl}trending", params=params).json()["data"]
         return [Gif(data[i]) for i in range(len(data))]
 
     def search(
@@ -44,8 +45,8 @@ class GIF:
         rating: Optional[str] = None,
         lang: Optional[str] = None,
         random_id: Optional[str] = None,
-        bundle: Optional["str"] = None
-    ):
+        bundle: Optional["str"] = None,
+    ) -> list[Gif]:
         params = {
             "api_key": self.api_key,
             "q": q,
@@ -54,9 +55,9 @@ class GIF:
             "rating": rating,
             "lang": lang,
             "random_id": random_id,
-            "bundle": bundle
+            "bundle": bundle,
         }
-        data = httpx.get(f"{self.BaseUrl}search", params=params).json()['data']
+        data = httpx.get(f"{self.BaseUrl}search", params=params).json()["data"]
         return [Gif(data[i]) for i in range(len(data))]
 
     def translate(
@@ -65,31 +66,31 @@ class GIF:
         *,
         random_id: Optional[str] = None,
         weirdness: int = 1,
-    ):
+    ) -> Gif:
         params = {
             "api_key": self.api_key,
             "s": s,
             "random_id": random_id,
             "weirdness": weirdness,
         }
-        return Gif(httpx.get(f"{self.BaseUrl}random", params=params).json()['data'])
+        return Gif(httpx.get(f"{self.BaseUrl}random", params=params).json()["data"])
 
     def random(
         self,
         *,
         tag: Optional[str] = None,
         rating: Optional[str] = None,
-        random_id: Optional[str] = None
-    ):
+        random_id: Optional[str] = None,
+    ) -> Gif:
         params = {
             "api_key": self.api_key,
             "tag": tag,
             "rating": rating,
-            "random_id": random_id
+            "random_id": random_id,
         }
-        return Gif(httpx.get(f"{self.BaseUrl}random", params=params).json()['data'])
+        return Gif(httpx.get(f"{self.BaseUrl}random", params=params).json()["data"])
 
-    #UNTESTED
+    # UNTESTED
     def get_random_id(
         self,
         *,
@@ -103,70 +104,67 @@ class GIF:
         }
         return httpx.get(f"{self.BaseUrl}random", params=params).json()
 
-    def fetch(self, id: int, *, random_id: Optional[str] = None, rating: Optional[str] = None):
-        params = {
-            "api_key": self.api_key, 
-            "gif_id": id,
-            "random_id": random_id,
-            "rating": rating
-        }
-
-        return httpx.get(self.BaseUrl+id, params=params).json()
-
-    def fetch_many(self, ids: List[int], *, random_id: Optional[str] = None, rating: Optional[str] = None):
+    def fetch(
+        self, id: int, *, random_id: Optional[str] = None, rating: Optional[str] = None
+    ):
         params = {
             "api_key": self.api_key,
+            "gif_id": id,
             "random_id": random_id,
-            "rating": rating
+            "rating": rating,
         }
+
+        return httpx.get(self.BaseUrl + id, params=params).json()
+
+    def fetch_many(
+        self,
+        ids: list[int],
+        *,
+        random_id: Optional[str] = None,
+        rating: Optional[str] = None,
+    ):
+        params = {"api_key": self.api_key, "random_id": random_id, "rating": rating}
         _ids = ""
         for id in ids:
             if ids[-1] == id:
                 _ids += id
                 break
-            _ids += (id + ", ")
+            _ids += id + ", "
 
         params["ids"] = _ids
-        return httpx.get(self.BaseUrl[:-1], params=params).json() #Put index slice: Might need to change the base_url without '/' at the ending.
+        return httpx.get(
+            self.BaseUrl[:-1], params=params
+        ).json()  # Put index slice: Might need to change the base_url without '/' at the ending.
 
-    def fetch_searches(self): # Might need to move this method elsewhere for now this staying here!
-        params = {
-            "api_key": self.api_key
-        }
+    def fetch_searches(
+        self,
+    ):  # Might need to move this method elsewhere for now this staying here!
+        params = {"api_key": self.api_key}
         return httpx.get(self.UrlTrending, params=params).json()
 
     def fetch_relate_search(self, term: str):
-        params = {
-            "api_key": self.api_key,
-            "term": term
-        }
+        params = {"api_key": self.api_key, "term": term}
 
-        return httpx.get(self.UrlTag+term, params=params).json()
+        return httpx.get(self.UrlTag + term, params=params).json()
 
-    def fetch_channel(self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None):
-        params = {
-            "api_key": self.api_key,
-            "limit": limit,
-            "offset": offset
-        }
+    def fetch_channel(
+        self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None
+    ):
+        params = {"api_key": self.api_key, "limit": limit, "offset": offset}
 
         return httpx.get(self.UrlChannel, params=params).json()
 
-    def fetch_tag_autocomplete(self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None):
-        params = {
-            "api_key": self.api_key,
-            "limit": limit,
-            "offset": offset
-        }
+    def fetch_tag_autocomplete(
+        self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None
+    ):
+        params = {"api_key": self.api_key, "limit": limit, "offset": offset}
 
-        return httpx.get(self.BaseUrl+"search/tags", params=params).json()
+        return httpx.get(self.BaseUrl + "search/tags", params=params).json()
 
     def fetch_categories(self):
-        params = {
-            "api_key": self.api_key
-        }
+        params = {"api_key": self.api_key}
 
-        return httpx.get(self.BaseUrl+"categories", params=params)
+        return httpx.get(self.BaseUrl + "categories", params=params)
 
 
 class Sticker:
@@ -227,21 +225,16 @@ class Emoji:
     def __init__(self, api_key: str):
         self.api_key = self.api_key
 
-    #UNTESTED
+    # UNTESTED
     def get(self, *, limit: Optional[int] = None, offset: Optional[int] = None):
-        params = {
-            "api_key": self.api_key,
-            "limit": limit,
-            "offset": offset
-        }
-        
+        params = {"api_key": self.api_key, "limit": limit, "offset": offset}
+
         return httpx.get(self.BaseUrl, params=params).json()
 
     def get_variations(self, *, gif_id: Optional[int]):
-        params = {
-            "api_key": self.api_key
-        }
+        params = {"api_key": self.api_key}
         return httpx.get(f"{self.BaseUrl}/{gif_id}/variations", params=params).json()
+
 
 """
 TODO:                        Objects:
