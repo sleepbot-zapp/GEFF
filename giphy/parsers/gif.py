@@ -24,7 +24,7 @@ class Gif:
         self.is_sticker = bool(self._data.get("is_sticker"))
         self.username = self._data.get("username")
         try:
-            self.user = User(self._data.get('user'))
+            self.user = User(self._data.get("user"))
         except AttributeError:
             self.user = self.username
 

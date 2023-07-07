@@ -1,7 +1,8 @@
 from __future__ import annotations
 import httpx
 from typing import TYPE_CHECKING
-from .parsers import Response, Category, TenorAPIError
+from .parsers import Response, Category
+from .errors import TenorAPIError
 
 if TYPE_CHECKING:
     from typing import Optional
@@ -28,6 +29,7 @@ class GIF:
         limit: Optional[int] = 20,
         pos: Optional[str] = None,
     ):
+        # check_contentfilter(contentfilter)
         params = {
             "key": self.api_key,
             "q": q,
@@ -44,7 +46,7 @@ class GIF:
         }
         data = httpx.get(f"{self.BaseUrl}search", params=params).json()
         try:
-            data = data['results']
+            data = data["results"]
         except KeyError:
             raise TenorAPIError(data)
         return tuple(Response(data[i]) for i in range(len(data)))
@@ -78,7 +80,7 @@ class GIF:
         }
         data = httpx.get(f"{self.BaseUrl}featured", params=params).json()
         try:
-            data = data['results']
+            data = data["results"]
         except KeyError:
             raise TenorAPIError(data)
         return tuple(Response(data[i]) for i in range(len(data)))
@@ -100,9 +102,9 @@ class GIF:
             "locale": locale,
             "contentfilter": contentfilter,
         }
-        data = httpx.get(f"{self.BaseUrl}categories", params=params).json()['tags']
+        data = httpx.get(f"{self.BaseUrl}categories", params=params).json()["tags"]
         try:
-            data = data['results']
+            data = data["results"]
         except KeyError:
             raise TenorAPIError(data)
         return tuple(Category(data[i]) for i in range(len(data)))
@@ -126,7 +128,7 @@ class GIF:
         }
         data = httpx.get(f"{self.BaseUrl}search_suggestions", params=params).json()
         try:
-            data = data['results']
+            data = data["results"]
         except KeyError:
             raise TenorAPIError(data)
         return tuple(i for i in data)
@@ -150,7 +152,7 @@ class GIF:
         }
         data = httpx.get(f"{self.BaseUrl}autocomplete", params=params).json()
         try:
-            data = data['results']
+            data = data["results"]
         except KeyError:
             raise TenorAPIError(data)
         return tuple(i for i in data)
@@ -174,7 +176,7 @@ class GIF:
         }
         data = httpx.get(f"{self.BaseUrl}trending_terms", params=params).json()
         try:
-            data = data['results']
+            data = data["results"]
         except KeyError:
             raise TenorAPIError(data)
         return tuple(i for i in data)
@@ -219,7 +221,7 @@ class GIF:
         }
         data = httpx.get(f"{self.BaseUrl}posts", params=params).json()
         try:
-            data = data['results']
+            data = data["results"]
         except KeyError:
             raise TenorAPIError(data)
         return tuple(i for i in data)
