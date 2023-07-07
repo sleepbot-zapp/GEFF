@@ -79,7 +79,7 @@ class GIF:
         self,
         *,
         client_key: Optional[str] = None,
-        _type: Optional[str] = "featured",
+        type: Optional[str] = "featured",
         country: Optional[str] = "US",
         locale: Optional[str] = "en_US",
         contentfilter: Optional[str] = "off",
@@ -87,7 +87,7 @@ class GIF:
         params = {
             "key": self.api_key,
             "client_key": client_key,
-            "type": _type,
+            "type": type,
             "country": country,
             "locale": locale,
             "contentfilter": contentfilter,
@@ -154,7 +154,7 @@ class GIF:
 
     def registershare(
         self,
-        _id: str = None,
+        id: str = None,
         *,
         client_key: Optional[str] = None,
         country: Optional[str] = "US",
@@ -164,7 +164,7 @@ class GIF:
     ):
         params = {
             "key": self.api_key,
-            "id": _id,
+            "id": id,
             "client_key": client_key,
             "country": country,
             "locale": locale,
