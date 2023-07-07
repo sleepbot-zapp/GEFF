@@ -1,6 +1,7 @@
 from __future__ import annotations
 import httpx
 from typing import TYPE_CHECKING
+from .parsers import Response, Category
 
 if TYPE_CHECKING:
     from typing import Optional
@@ -41,7 +42,8 @@ class GIF:
             "limit": limit,
             "pos": pos,
         }
-        return httpx.get(f"{self.BaseUrl}search", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}search", params=params).json()["results"]
+        return tuple(Response(data[i]) for i in range(len(data)))
 
     def featured(
         self,
@@ -70,7 +72,8 @@ class GIF:
             "limit": limit,
             "pos": pos,
         }
-        return httpx.get(f"{self.BaseUrl}featured", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}featured", params=params).json()["results"]
+        return tuple(Response(data[i]) for i in range(len(data)))
 
     def categories(
         self,
@@ -89,7 +92,8 @@ class GIF:
             "locale": locale,
             "contentfilter": contentfilter,
         }
-        return httpx.get(f"{self.BaseUrl}categories", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}categories", params=params).json()['tags']
+        return tuple(Category(i) for i in data)
 
     def search_suggestions(
         self,
@@ -108,7 +112,7 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        return httpx.get(f"{self.BaseUrl}search_suggestions", params=params).json()
+        return tuple(i for i in httpx.get(f"{self.BaseUrl}search_suggestions", params=params).json()['results'])
 
     def autocomplete(
         self,
@@ -127,7 +131,7 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        return httpx.get(f"{self.BaseUrl}autocomplete", params=params).json()
+        return tuple(i for i in httpx.get(f"{self.BaseUrl}autocomplete", params=params).json()['results'])
 
     def trending_terms(
         self,
@@ -146,7 +150,7 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        return httpx.get(f"{self.BaseUrl}trending_terms", params=params).json()
+        return tuple(i for i in httpx.get(f"{self.BaseUrl}trending_terms", params=params).json())
 
     def registershare(
         self,
@@ -186,4 +190,5 @@ class GIF:
             "locale": locale,
             "media_filter": media_filter,
         }
-        return httpx.get(f"{self.BaseUrl}posts", params=params).json()
+        data = httpx.get(f"{self.BaseUrl}posts", params=params).json()['results']
+        return tuple(Response(i) for i in data)
