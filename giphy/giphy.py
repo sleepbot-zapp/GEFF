@@ -72,8 +72,7 @@ class GIF:
             "random_id": random_id,
             "weirdness": weirdness,
         }
-        data = httpx.get(f"{self.BaseUrl}translate", params=params).json()['data']
-        return [Gif(data[i]) for i in range(len(data))]
+        return Gif(httpx.get(f"{self.BaseUrl}random", params=params).json()['data'])
 
     def random(
         self,
@@ -88,8 +87,7 @@ class GIF:
             "rating": rating,
             "random_id": random_id
         }
-        data = httpx.get(f"{self.BaseUrl}random", params=params).json()['data']
-        return [Gif(data[i]) for i in range(len(data))]
+        return Gif(httpx.get(f"{self.BaseUrl}random", params=params).json()['data'])
 
     #UNTESTED
     def get_random_id(

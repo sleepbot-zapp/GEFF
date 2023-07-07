@@ -1,7 +1,7 @@
 class User:
     def __init__(self, data) -> None:
         self._data = data
-        self.avatar_url = self._data.get('avatar_url')
+        self.avatar_url = self._data['avatar_url']#.get('avatar_url')
         self.banner_url = self._data.get('banner_url')
         self.profile_url = self._data.get('profile_url') 
         self.username = self._data.get('username')

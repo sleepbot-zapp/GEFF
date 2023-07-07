@@ -23,8 +23,15 @@ class Gif:
         self.import_datetime = self._data.get('import_datetime')
         self.is_sticker = bool(self._data.get("is_sticker"))
         self.username = self._data.get('username')
-        self.images = [Image(self._data.get('images')[i]) for i in self._data.get('images')]
-        self.user = User(self._data.get('user'))
+
+    @property
+    def user(self):
+        return User(self._data.get('user'))
+    
+    @property
+    def images(self):
+        return [Image(self._data.get('images')[i]) for i in self._data.get('images')]
+        
     
     def __repr__(self) -> str: 
         return f"Gif({', '.join([f'{i}: {self.__dict__[i]}' for i in self.__dict__ if not i.startswith('_')])})"
