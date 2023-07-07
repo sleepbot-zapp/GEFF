@@ -76,7 +76,7 @@ class GIF:
             "limit": limit,
             "pos": pos,
         }
-        data = httpx.get(f"{self.BaseUrl}featured", params=params).json()["results"]
+        data = httpx.get(f"{self.BaseUrl}featured", params=params).json()
         try:
             data = data['results']
         except KeyError:
