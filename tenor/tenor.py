@@ -1,7 +1,7 @@
 from __future__ import annotations
 import httpx
 from typing import TYPE_CHECKING
-from .parsers import Response, Category
+from .parsers import Response, Category, TenorAPIError
 
 if TYPE_CHECKING:
     from typing import Optional
@@ -46,7 +46,7 @@ class GIF:
         try:
             data = data['results']
         except KeyError:
-            return data
+            raise TenorAPIError(data)
         return tuple(Response(data[i]) for i in range(len(data)))
 
     def featured(
@@ -80,7 +80,7 @@ class GIF:
         try:
             data = data['results']
         except KeyError:
-            return data
+            raise TenorAPIError(data)
         return tuple(Response(data[i]) for i in range(len(data)))
 
     def categories(
@@ -104,8 +104,8 @@ class GIF:
         try:
             data = data['results']
         except KeyError:
-            return data
-        return tuple(Response(data[i]) for i in range(len(data)))
+            raise TenorAPIError(data)
+        return tuple(Category(data[i]) for i in range(len(data)))
 
     def search_suggestions(
         self,
@@ -128,7 +128,7 @@ class GIF:
         try:
             data = data['results']
         except KeyError:
-            return data
+            raise TenorAPIError(data)
         return tuple(i for i in data)
 
     def autocomplete(
@@ -152,7 +152,7 @@ class GIF:
         try:
             data = data['results']
         except KeyError:
-            return data
+            raise TenorAPIError(data)
         return tuple(i for i in data)
 
     def trending_terms(
@@ -176,7 +176,7 @@ class GIF:
         try:
             data = data['results']
         except KeyError:
-            return data
+            raise TenorAPIError(data)
         return tuple(i for i in data)
 
     def registershare(
@@ -221,5 +221,5 @@ class GIF:
         try:
             data = data['results']
         except KeyError:
-            return data
+            raise TenorAPIError(data)
         return tuple(i for i in data)
