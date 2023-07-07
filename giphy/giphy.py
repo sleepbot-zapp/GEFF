@@ -1,6 +1,6 @@
 from __future__ import annotations
 import httpx
-from .parser import Gif
+from .parsers import Gif
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
