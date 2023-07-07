@@ -1,6 +1,6 @@
 from __future__ import annotations
 import httpx
-from .parsers import Gif
+from .parsers import Gif, Channel, Term, Category, Sticker as StickerParser, Emoji as EmojiParser
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -77,8 +77,8 @@ class GIF:
 
     def random(
         self,
-        *,
         tag: Optional[str] = None,
+        *,
         rating: Optional[str] = None,
         random_id: Optional[str] = None,
     ) -> Gif:
@@ -90,17 +90,12 @@ class GIF:
         }
         return Gif(httpx.get(f"{self.BaseUrl}random", params=params).json()["data"])
 
-    # UNTESTED
-    def get_random_id(
-        self,
-        *,
-        tag: Optional[str] = None,
-        rating: Optional[str] = None,
+
+    def get_random_id( #Might need to change this elsewhere
+        self
     ):
         params = {
             "api_key": self.api_key,
-            "tag": tag,
-            "rating": rating,
         }
         return httpx.get(f"{self.BaseUrl}random", params=params).json()
 
@@ -113,8 +108,8 @@ class GIF:
             "random_id": random_id,
             "rating": rating,
         }
-
-        return httpx.get(self.BaseUrl + id, params=params).json()
+        data = httpx.get(self.BaseUrl + id, params=params).json()
+        return Gif(data["data"])
 
     def fetch_many(
         self,
@@ -132,39 +127,49 @@ class GIF:
             _ids += id + ", "
 
         params["ids"] = _ids
-        return httpx.get(
+        return [Gif(data) for data in httpx.get(
             self.BaseUrl[:-1], params=params
-        ).json()  # Put index slice: Might need to change the base_url without '/' at the ending.
+        ).json()["data"]]  # Put index slice: Might need to change the BaseUrl var without '/' at the ending.
 
     def fetch_searches(
         self,
     ):  # Might need to move this method elsewhere for now this staying here!
         params = {"api_key": self.api_key}
-        return httpx.get(self.UrlTrending, params=params).json()
+        return httpx.get(self.UrlTrending, params=params).json()["data"]
 
-    def fetch_relate_search(self, term: str):
+    def fetch_relate_search(self, term: str): 
         params = {"api_key": self.api_key, "term": term}
 
-        return httpx.get(self.UrlTag + term, params=params).json()
+        return httpx.get(self.UrlTag + term, params=params).json()["data"]["name"]
 
-    def fetch_channel(
+    def fetch_channels(
+        # Might need to move this method elsewhere for now this staying here!
         self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None
-    ):
-        params = {"api_key": self.api_key, "limit": limit, "offset": offset}
-
-        return httpx.get(self.UrlChannel, params=params).json()
+    ) -> list[Optional[Channel]]:
+        params = {
+            "api_key": self.api_key, 
+            "q": q,
+            "limit": limit, 
+            "offset": offset
+        }
+        res = httpx.get(self.UrlChannel, params=params).json()["data"]
+        if not res:
+            return []
+        return [Channel(data) for data in res]
 
     def fetch_tag_autocomplete(
+        # Might need to move this method elsewhere for now this staying here!
         self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None
     ):
-        params = {"api_key": self.api_key, "limit": limit, "offset": offset}
+        params = {"api_key": self.api_key, "q": q, "limit": limit, "offset": offset}
 
-        return httpx.get(self.BaseUrl + "search/tags", params=params).json()
+        return [Term(data) for data in httpx.get(self.BaseUrl + "search/tags", params=params).json()["data"]]
 
-    def fetch_categories(self):
+    def fetch_categories(self): 
+        # Might need to move this method elsewhere for now this staying here!
         params = {"api_key": self.api_key}
 
-        return httpx.get(self.BaseUrl + "categories", params=params)
+        return  [Category(data) for data in httpx.get(self.BaseUrl + "categories", params=params).json()["data"]]
 
 
 class Sticker:
@@ -173,7 +178,7 @@ class Sticker:
     def __init__(self, api_key: str):
         self.api_key = api_key
 
-    def trending(
+    def fetch_trending(
         self,
         *,
         limit: Optional[int] = None,
@@ -186,7 +191,7 @@ class Sticker:
             "offset": offset,
             "rating": rating,
         }
-        return httpx.get(f"{self.BaseUrl}trending", params=params).json()
+        return [StickerParser(data) for data in httpx.get(f"{self.BaseUrl}trending", params=params).json()["data"]]
 
     def search(
         self,
@@ -203,7 +208,7 @@ class Sticker:
             "offset": offset,
             "rating": rating,
         }
-        return httpx.get(f"{self.BaseUrl}search", params=params).json()
+        return [StickerParser(data) for data in httpx.get(f"{self.BaseUrl}trending", params=params).json()["data"]]
 
     def translate(
         self,
@@ -216,24 +221,42 @@ class Sticker:
             "s": s,
             "weirdness": weirdness,
         }
-        return httpx.get(f"{self.BaseUrl}translate", params=params).json()
+        return StickerParser(httpx.get(f"{self.BaseUrl}translate", params=params).json()["data"])
+
+
+    def random(
+        self,
+        tag: Optional[str] = None,
+        *,
+        rating: Optional[str] = None,
+        random_id: Optional[str] = None,
+    ) -> Gif:
+        params = {
+            "api_key": self.api_key,
+            "tag": tag,
+            "rating": rating,
+            "random_id": random_id,
+        }
+        return StickerParser(httpx.get(f"{self.BaseUrl}translate", params=params).json()["data"])
 
 
 class Emoji:
     BaseUrl = "https://api.giphy.com/v2/emoji"
 
     def __init__(self, api_key: str):
-        self.api_key = self.api_key
+        self.api_key = api_key
 
-    # UNTESTED
-    def get(self, *, limit: Optional[int] = None, offset: Optional[int] = None):
+    def fetch(self, *, limit: Optional[int] = None, offset: Optional[int] = None):
         params = {"api_key": self.api_key, "limit": limit, "offset": offset}
 
-        return httpx.get(self.BaseUrl, params=params).json()
+        return [EmojiParser(data) for data in httpx.get(self.BaseUrl, params=params).json()["data"]]
 
     def get_variations(self, *, gif_id: Optional[int]):
         params = {"api_key": self.api_key}
-        return httpx.get(f"{self.BaseUrl}/{gif_id}/variations", params=params).json()
+        data = httpx.get(self.BaseUrl+f"/{gif_id}/variations", params=params).json()["data"]
+        if not data:
+            return None
+        return EmojiParser(data)
 
 
 """
