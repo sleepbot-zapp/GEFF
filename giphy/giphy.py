@@ -4,12 +4,13 @@ from .parsers import Gif, Channel, Term, Category, Sticker as sticker, Emoji as 
 from typing import TYPE_CHECKING, Tuple, List
 from json import dumps
 from .errors import GiphyAPIError
+
 if TYPE_CHECKING:
     from typing import Optional
 
 
 class GIF:
-    BaseUrl = 'https://api.giphy.com/v1/'
+    BaseUrl = "https://api.giphy.com/v1/"
     Gif = "https://api.giphy.com/v1/gifs/"
     UrlTrending = "https://api.giphy.com/v1/trending/searches"
     UrlTag = "https://api.giphy.com/v1/tags/related/"
@@ -36,8 +37,8 @@ class GIF:
             "bundle": bundle,
         }
         data = get(f"{self.Gif}trending", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return tuple(Gif(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
@@ -63,8 +64,8 @@ class GIF:
             "bundle": bundle,
         }
         data = get(f"{self.Gif}trending", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return tuple(Gif(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
@@ -82,11 +83,10 @@ class GIF:
             "weirdness": weirdness,
         }
         data = get(f"{self.Gif}trending", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return Gif(data)
         raise GiphyAPIError(data)
-            
 
     def random(
         self,
@@ -102,19 +102,16 @@ class GIF:
             "random_id": random_id,
         }
         data = get(f"{self.Gif}trending", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return Gif(data)
         raise GiphyAPIError(data)
 
-
-    def get_random_id(
-        self
-    ) -> str:
+    def get_random_id(self) -> str:
         params = {
             "api_key": self.api_key,
         }
-        return get(f"{self.BaseUrl}randomid", params=params).json()['data']['random_id']
+        return get(f"{self.BaseUrl}randomid", params=params).json()["data"]["random_id"]
 
     def fetch(
         self, id: int, *, random_id: Optional[str] = None, rating: Optional[str] = None
@@ -126,24 +123,29 @@ class GIF:
             "rating": rating,
         }
         data = get(f"{self.Gif}trending", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return Gif(data)
         raise GiphyAPIError(data)
 
     def fetch_many(
         self,
-        ids: str|List[str],
+        ids: str | List[str],
         *,
         random_id: Optional[str] = None,
         rating: Optional[str] = None,
     ) -> Tuple[Gif]:
         if isinstance(ids, list):
             ids = ", ".join([i for i in ids])
-        params = {"api_key": self.api_key, 'ids':ids, "random_id": random_id, "rating": rating}
+        params = {
+            "api_key": self.api_key,
+            "ids": ids,
+            "random_id": random_id,
+            "rating": rating,
+        }
         data = get(f"{self.Gif}", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return tuple(Gif(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
@@ -152,29 +154,24 @@ class GIF:
     ) -> Tuple[str]:
         params = {"api_key": self.api_key}
         data = get(self.UrlTrending, params=params).json()
-        if data['data']:
+        if data["data"]:
             return tuple(data["data"])
         raise GiphyAPIError(data)
 
-    def fetch_related_search(self, term: str) -> Tuple[str]: 
+    def fetch_related_search(self, term: str) -> Tuple[str]:
         params = {"api_key": self.api_key, "term": term}
         data = get(self.UrlTag + term, params=params).json()
-        if data['data']:
+        if data["data"]:
             return tuple(data["data"]["name"])
         raise GiphyAPIError(data)
 
     def fetch_channels(
         self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None
     ) -> Tuple[Channel]:
-        params = {
-            "api_key": self.api_key, 
-            "q": q,
-            "limit": limit, 
-            "offset": offset
-        }
+        params = {"api_key": self.api_key, "q": q, "limit": limit, "offset": offset}
         data = get(self.UrlChannel, params=params).json()
-        if data['data']:
-            return tuple(Channel(i) for i in data['data'])
+        if data["data"]:
+            return tuple(Channel(i) for i in data["data"])
         raise GiphyAPIError(data)
 
     def fetch_tag_autocomplete(
@@ -182,45 +179,48 @@ class GIF:
     ) -> Tuple[Term]:
         params = {"api_key": self.api_key, "q": q, "limit": limit, "offset": offset}
         data = get(self.Gif + "search/tags", params=params).json()
-        if data['data']:
-            return tuple(Term(i) for i in data['data'])
+        if data["data"]:
+            return tuple(Term(i) for i in data["data"])
         raise GiphyAPIError(data)
 
-    def fetch_categories(self) -> Tuple[Category]: 
+    def fetch_categories(self) -> Tuple[Category]:
         params = {"api_key": self.api_key}
         data = get(self.Gif + "categories", params=params).json()
-        if data['data']:
-            return tuple(Category(i) for i in data['data'])
+        if data["data"]:
+            return tuple(Category(i) for i in data["data"])
         raise GiphyAPIError(data)
 
-
     def upload(
-            self,
-            username: str,
-            source_image_url: str,
-            *,
-            file: Optional[str] = None,
-            tags: Optional[str] = None,
-            source_post_url: Optional[str] = None,
-        ) -> dict[str, str]:
-            values ={
-                "api_key": self.api_key,
-                "username": username,
-                "source_image_url": source_image_url,
-                "file": file if file else "",
-                "tags": tags if tags else "",
-                "source_post_url": source_post_url if source_post_url else ""
+        self,
+        username: str,
+        source_image_url: str,
+        *,
+        file: Optional[str] = None,
+        tags: Optional[str] = None,
+        source_post_url: Optional[str] = None,
+    ) -> dict[str, str]:
+        values = {
+            "api_key": self.api_key,
+            "username": username,
+            "source_image_url": source_image_url,
+            "file": file if file else "",
+            "tags": tags if tags else "",
+            "source_post_url": source_post_url if source_post_url else "",
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        d = dumps(values).encode("utf-8")
+        data = post("https://upload.giphy.com/v1/gifs", data=d, headers=headers).json()  # type: ignore
+        try:
+            return {
+                "id": data["data"]["id"],
+                "url": f"https://media.giphy.com/media/{data['data']['id']}/giphy.gif",
             }
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            }
-            d = dumps(values).encode("utf-8")
-            data = post("https://upload.giphy.com/v1/gifs", data=d, headers=headers).json() # type: ignore
-            try:
-                return {"id": data['data']['id'], 'url':f"https://media.giphy.com/media/{data['data']['id']}/giphy.gif"}
-            except:
-                raise GiphyAPIError(data)
+        except:
+            raise GiphyAPIError(data)
+
 
 class Sticker:
     BaseUrl = "https://api.giphy.com/v1/stickers/"
@@ -242,8 +242,8 @@ class Sticker:
             "rating": rating,
         }
         data = get(f"{self.BaseUrl}trending", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return tuple(sticker(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
@@ -263,8 +263,8 @@ class Sticker:
             "rating": rating,
         }
         data = get(f"{self.BaseUrl}trending", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return tuple(sticker(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
@@ -280,11 +280,10 @@ class Sticker:
             "weirdness": weirdness,
         }
         data = get(f"{self.BaseUrl}trending", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return sticker(data)
         raise GiphyAPIError(data)
-
 
     def random(
         self,
@@ -300,8 +299,8 @@ class Sticker:
             "random_id": random_id,
         }
         data = get(f"{self.BaseUrl}trending", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return sticker(data)
         raise GiphyAPIError(data)
 
@@ -312,19 +311,20 @@ class Emoji:
     def __init__(self, api_key: str) -> None:
         self.api_key = api_key
 
-    def fetch(self, *, limit: Optional[int] = None, offset: Optional[int] = None) -> Tuple[emoji]:
+    def fetch(
+        self, *, limit: Optional[int] = None, offset: Optional[int] = None
+    ) -> Tuple[emoji]:
         params = {"api_key": self.api_key, "limit": limit, "offset": offset}
         data = get(f"{self.BaseUrl}trending", params=params).json()
-        if data['data']:
-            data = data['data']
+        if data["data"]:
+            data = data["data"]
             return tuple(emoji(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
     def get_variations(self, *, gif_id: Optional[int]) -> emoji:
         params = {"api_key": self.api_key}
-        data = get(self.BaseUrl+f"/{gif_id}/variations", params=params).json()
-        if data['data']:
-            data = data['data']
+        data = get(self.BaseUrl + f"/{gif_id}/variations", params=params).json()
+        if data["data"]:
+            data = data["data"]
             return emoji(data)
         raise GiphyAPIError(data)
-        

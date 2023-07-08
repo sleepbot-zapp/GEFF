@@ -2,7 +2,6 @@ from .image import Image
 from .user import User
 
 
-
 class Gif:
     def __init__(self, data) -> None:
         self._data = data
@@ -35,7 +34,6 @@ class Gif:
             self.is_emoji = False
         if self.is_emoji:
             self.variation_count = self._data.get("variation_count")
-    
 
     @property
     def images(self) -> list[Image]:
@@ -45,9 +43,10 @@ class Gif:
         check = isinstance(self.user, User)
         return f"{self.__class__.__name__}(title={self.title}, id={self.id}, {'user' if check else 'username'}={self.user if check else self.username})"
 
-    
+
 class Sticker(Gif):
     ...
+
 
 class Emoji(Gif):
     ...
