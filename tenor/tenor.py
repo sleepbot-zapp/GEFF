@@ -111,7 +111,7 @@ class GIF:
 
     def search_suggestions(
         self,
-        q: str = None,
+        q: str,
         *,
         client_key: Optional[str] = None,
         country: Optional[str] = "US",
@@ -135,7 +135,7 @@ class GIF:
 
     def autocomplete(
         self,
-        q: str = None,
+        q: str,
         *,
         client_key: Optional[str] = None,
         country: Optional[str] = "US",
@@ -159,7 +159,7 @@ class GIF:
 
     def trending_terms(
         self,
-        q: str = None,
+        q: str,
         *,
         client_key: Optional[str] = None,
         country: Optional[str] = "US",
@@ -183,7 +183,7 @@ class GIF:
 
     def registershare(
         self,
-        id: str = None,
+        id: str,
         *,
         client_key: Optional[str] = None,
         country: Optional[str] = "US",
@@ -204,7 +204,7 @@ class GIF:
 
     def posts(
         self,
-        ids: str = None,
+        ids: str,
         *,
         client_key: Optional[str] = None,
         country: Optional[str] = "US",

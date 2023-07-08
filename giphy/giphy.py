@@ -3,6 +3,7 @@ import httpx
 from .parsers import Gif, Channel, Term, Category, Sticker as sticker, Emoji as emoji
 from typing import TYPE_CHECKING
 from json import dumps
+from .errors import GiphyAPIError
 if TYPE_CHECKING:
     from typing import Optional
 
@@ -34,8 +35,11 @@ class GIF:
             "random_id": random_id,
             "bundle": bundle,
         }
-        data = httpx.get(f"{self.Gif}trending", params=params).json()["data"]
-        return [Gif(data[i]) for i in range(len(data))]
+        data = httpx.get(f"{self.Gif}trending", params=params).json()
+        if data['data']:
+            data = data['data']
+            return [Gif(data[i]) for i in range(len(data))]
+        raise GiphyAPIError(data)
 
     def search(
         self,
@@ -58,8 +62,11 @@ class GIF:
             "random_id": random_id,
             "bundle": bundle,
         }
-        data = httpx.get(f"{self.Gif}search", params=params).json()["data"]
-        return [Gif(data[i]) for i in range(len(data))]
+        data = httpx.get(f"{self.Gif}trending", params=params).json()
+        if data['data']:
+            data = data['data']
+            return [Gif(data[i]) for i in range(len(data))]
+        raise GiphyAPIError(data)
 
     def translate(
         self,
@@ -74,7 +81,12 @@ class GIF:
             "random_id": random_id,
             "weirdness": weirdness,
         }
-        return Gif(httpx.get(f"{self.Gif}random", params=params).json()["data"])
+        data = httpx.get(f"{self.Gif}trending", params=params).json()
+        if data['data']:
+            data = data['data']
+            return Gif(data)
+        raise GiphyAPIError(data)
+            
 
     def random(
         self,
@@ -89,7 +101,11 @@ class GIF:
             "rating": rating,
             "random_id": random_id,
         }
-        return Gif(httpx.get(f"{self.Gif}random", params=params).json()["data"])
+        data = httpx.get(f"{self.Gif}trending", params=params).json()
+        if data['data']:
+            data = data['data']
+            return Gif(data)
+        raise GiphyAPIError(data)
 
 
     def get_random_id(
@@ -109,7 +125,11 @@ class GIF:
             "random_id": random_id,
             "rating": rating,
         }
-        return Gif(httpx.get(self.Gif + str(id), params=params).json()["data"])
+        data = httpx.get(f"{self.Gif}trending", params=params).json()
+        if data['data']:
+            data = data['data']
+            return Gif(data)
+        raise GiphyAPIError(data)
 
     def fetch_many(
         self,
@@ -192,7 +212,7 @@ class GIF:
             try:
                 return {"id": data['data']['id'], 'url':f"https://media.giphy.com/media/{data['data']['id']}/giphy.gif"}
             except:
-                return data
+                raise GiphyAPIError(data)
 
 class Sticker:
     BaseUrl = "https://api.giphy.com/v1/stickers/"
@@ -213,7 +233,11 @@ class Sticker:
             "offset": offset,
             "rating": rating,
         }
-        return [sticker(data) for data in httpx.get(f"{self.BaseUrl}trending", params=params).json()["data"]]
+        data = httpx.get(f"{self.BaseUrl}trending", params=params).json()
+        if data['data']:
+            data = data['data']
+            return [sticker(data[i]) for i in range(len(data))]
+        raise GiphyAPIError(data)
 
     def search(
         self,
@@ -230,7 +254,11 @@ class Sticker:
             "offset": offset,
             "rating": rating,
         }
-        return [sticker(data) for data in httpx.get(f"{self.BaseUrl}trending", params=params).json()["data"]]
+        data = httpx.get(f"{self.BaseUrl}trending", params=params).json()
+        if data['data']:
+            data = data['data']
+            return [sticker(data[i]) for i in range(len(data))]
+        raise GiphyAPIError(data)
 
     def translate(
         self,
@@ -243,7 +271,11 @@ class Sticker:
             "s": s,
             "weirdness": weirdness,
         }
-        return sticker(httpx.get(f"{self.BaseUrl}translate", params=params).json()["data"])
+        data = httpx.get(f"{self.BaseUrl}trending", params=params).json()
+        if data['data']:
+            data = data['data']
+            return sticker(data)
+        raise GiphyAPIError(data)
 
 
     def random(
@@ -259,7 +291,11 @@ class Sticker:
             "rating": rating,
             "random_id": random_id,
         }
-        return sticker(httpx.get(f"{self.BaseUrl}translate", params=params).json()["data"])
+        data = httpx.get(f"{self.BaseUrl}trending", params=params).json()
+        if data['data']:
+            data = data['data']
+            return sticker(data)
+        raise GiphyAPIError(data)
 
 
 class Emoji:
@@ -270,11 +306,17 @@ class Emoji:
 
     def fetch(self, *, limit: Optional[int] = None, offset: Optional[int] = None) -> list[emoji]:
         params = {"api_key": self.api_key, "limit": limit, "offset": offset}
-        return [emoji(data) for data in httpx.get(self.BaseUrl, params=params).json()["data"]]
+        data = httpx.get(f"{self.BaseUrl}trending", params=params).json()
+        if data['data']:
+            data = data['data']
+            return [emoji(data[i]) for i in range(len(data))]
+        raise GiphyAPIError(data)
 
     def get_variations(self, *, gif_id: Optional[int]) -> emoji|None:
         params = {"api_key": self.api_key}
-        data = httpx.get(self.BaseUrl+f"/{gif_id}/variations", params=params).json()["data"]
-        if not data:
-            return None
-        return emoji(data)
+        data = httpx.get(self.BaseUrl+f"/{gif_id}/variations", params=params).json()
+        if data['data']:
+            data = data['data']
+            return emoji(data)
+        raise GiphyAPIError(data)
+        
