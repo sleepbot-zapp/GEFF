@@ -2,7 +2,7 @@ from __future__ import annotations
 import httpx
 from .parsers import Gif, Channel, Term, Category, Sticker as sticker, Emoji as emoji
 from typing import TYPE_CHECKING
-
+from json import dumps
 if TYPE_CHECKING:
     from typing import Optional
 
@@ -79,13 +79,13 @@ class GIF:
     def random(
         self,
         *,
-        tag: Optional[str] = None,
+        tags: Optional[str] = None,
         rating: Optional[str] = None,
         random_id: Optional[str] = None,
     ) -> Gif:
         params = {
             "api_key": self.api_key,
-            "tag": tag,
+            "tag": tags,
             "rating": rating,
             "random_id": random_id,
         }
@@ -166,6 +166,34 @@ class GIF:
         return  [Category(data) for data in httpx.get(self.Gif + "categories", params=params).json()["data"]]
 
 
+    def upload(
+            self,
+            username: str,
+            source_image_url: str,
+            *,
+            file: Optional[str] = None,
+            tags: Optional[str] = None,
+            source_post_url: Optional[str] = None,
+        ) -> dict[str, str]:
+            values ={
+                "api_key": self.api_key,
+                "username": username,
+                "source_image_url": source_image_url,
+                "file": file if file else "",
+                "tags": tags if tags else "",
+                "source_post_url": source_post_url if source_post_url else ""
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            }
+            d = dumps(values).encode("utf-8")
+            data = httpx.post("https://upload.giphy.com/v1/gifs", data=d, headers=headers).json() # type: ignore
+            try:
+                return {"id": data['data']['id'], 'url':f"https://media.giphy.com/media/{data['data']['id']}/giphy.gif"}
+            except:
+                return data
+
 class Sticker:
     BaseUrl = "https://api.giphy.com/v1/stickers/"
 
@@ -220,14 +248,14 @@ class Sticker:
 
     def random(
         self,
-        tag: Optional[str] = None,
+        tags: Optional[str] = None,
         *,
         rating: Optional[str] = None,
         random_id: Optional[str] = None,
     ) -> sticker:
         params = {
             "api_key": self.api_key,
-            "tag": tag,
+            "tag": tags,
             "rating": rating,
             "random_id": random_id,
         }
