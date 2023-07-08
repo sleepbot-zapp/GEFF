@@ -1,7 +1,7 @@
 from __future__ import annotations
-import httpx
-from typing import TYPE_CHECKING
-from .parsers import Response, Category
+from httpx import get
+from typing import TYPE_CHECKING, Tuple
+from .parsers import Gif, Category
 from .errors import TenorAPIError
 
 if TYPE_CHECKING:
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class GIF:
     BaseUrl = "https://tenor.googleapis.com/v2/"
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str) -> None:
         self.api_key = api_key
 
     def search(
@@ -28,8 +28,7 @@ class GIF:
         random: Optional[bool] = False,
         limit: Optional[int] = 20,
         pos: Optional[str] = None,
-    ):
-        # check_contentfilter(contentfilter)
+    ) -> Tuple[Gif]:
         params = {
             "key": self.api_key,
             "q": q,
@@ -44,12 +43,12 @@ class GIF:
             "limit": limit,
             "pos": pos,
         }
-        data = httpx.get(f"{self.BaseUrl}search", params=params).json()
+        data = get(f"{self.BaseUrl}search", params=params).json()
         try:
             data = data["results"]
         except KeyError:
             raise TenorAPIError(data)
-        return tuple(Response(data[i]) for i in range(len(data)))
+        return tuple(Gif(data[i]) for i in range(len(data)))
 
     def featured(
         self,
@@ -64,7 +63,7 @@ class GIF:
         random: Optional[bool] = False,
         limit: Optional[int] = 20,
         pos: Optional[str] = None,
-    ):
+    ) -> Tuple[Gif]:
         params = {
             "key": self.api_key,
             "client_key": client_key,
@@ -78,12 +77,12 @@ class GIF:
             "limit": limit,
             "pos": pos,
         }
-        data = httpx.get(f"{self.BaseUrl}featured", params=params).json()
+        data = get(f"{self.BaseUrl}featured", params=params).json()
         try:
             data = data["results"]
         except KeyError:
             raise TenorAPIError(data)
-        return tuple(Response(data[i]) for i in range(len(data)))
+        return tuple(Gif(data[i]) for i in range(len(data)))
 
     def categories(
         self,
@@ -93,7 +92,7 @@ class GIF:
         country: Optional[str] = "US",
         locale: Optional[str] = "en_US",
         contentfilter: Optional[str] = "off",
-    ):
+    ) -> Tuple[Category]:
         params = {
             "key": self.api_key,
             "client_key": client_key,
@@ -102,7 +101,7 @@ class GIF:
             "locale": locale,
             "contentfilter": contentfilter,
         }
-        data = httpx.get(f"{self.BaseUrl}categories", params=params).json()["tags"]
+        data = get(f"{self.BaseUrl}categories", params=params).json()["tags"]
         try:
             data = data["results"]
         except KeyError:
@@ -117,7 +116,7 @@ class GIF:
         country: Optional[str] = "US",
         locale: Optional[str] = "en_US",
         limit: Optional[int] = 20,
-    ):
+    ) -> Tuple[str]:
         params = {
             "key": self.api_key,
             "q": q,
@@ -126,7 +125,7 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        data = httpx.get(f"{self.BaseUrl}search_suggestions", params=params).json()
+        data = get(f"{self.BaseUrl}search_suggestions", params=params).json()
         try:
             data = data["results"]
         except KeyError:
@@ -141,7 +140,7 @@ class GIF:
         country: Optional[str] = "US",
         locale: Optional[str] = "en_US",
         limit: Optional[int] = 20,
-    ):
+    ) -> Tuple[str]:
         params = {
             "key": self.api_key,
             "q": q,
@@ -150,7 +149,7 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        data = httpx.get(f"{self.BaseUrl}autocomplete", params=params).json()
+        data = get(f"{self.BaseUrl}autocomplete", params=params).json()
         try:
             data = data["results"]
         except KeyError:
@@ -165,7 +164,7 @@ class GIF:
         country: Optional[str] = "US",
         locale: Optional[str] = "en_US",
         limit: Optional[int] = 20,
-    ):
+    ) -> Tuple[str]:
         params = {
             "key": self.api_key,
             "q": q,
@@ -174,7 +173,7 @@ class GIF:
             "locale": locale,
             "limit": limit,
         }
-        data = httpx.get(f"{self.BaseUrl}trending_terms", params=params).json()
+        data = get(f"{self.BaseUrl}trending_terms", params=params).json()
         try:
             data = data["results"]
         except KeyError:
@@ -200,7 +199,7 @@ class GIF:
             "limit": limit,
             "q": q,
         }
-        return httpx.get(f"{self.BaseUrl}registershare", params=params).json()
+        return get(f"{self.BaseUrl}registershare", params=params).json()
 
     def posts(
         self,
@@ -210,7 +209,7 @@ class GIF:
         country: Optional[str] = "US",
         locale: Optional[str] = "en_US",
         media_filter: Optional[str] = None,
-    ):
+    ) -> Tuple[str]:
         params = {
             "key": self.api_key,
             "ids": ids,
@@ -219,7 +218,7 @@ class GIF:
             "locale": locale,
             "media_filter": media_filter,
         }
-        data = httpx.get(f"{self.BaseUrl}posts", params=params).json()
+        data = get(f"{self.BaseUrl}posts", params=params).json()
         try:
             data = data["results"]
         except KeyError:

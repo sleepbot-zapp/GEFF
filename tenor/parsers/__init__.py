@@ -4,7 +4,7 @@ from .category import *
 
 
 __all__ = {
-    "Response",
+    "Gif",
     "Media",
     "Category",
 }
