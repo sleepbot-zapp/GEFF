@@ -19,7 +19,7 @@ class GIF:
     def __init__(self, api_key: str) -> None:
         self.api_key = api_key
 
-    def fetch_trendinget(
+    def fetch_trending(
         self,
         *,
         limit: Optional[int] = None,
