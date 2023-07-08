@@ -91,13 +91,13 @@ class GIF:
     def random(
         self,
         *,
-        tags: Optional[str] = None,
+        tag: Optional[str] = None,
         rating: Optional[str] = None,
         random_id: Optional[str] = None,
     ) -> Gif:
         params = {
             "api_key": self.api_key,
-            "tag": tags,
+            "tag": tag,
             "rating": rating,
             "random_id": random_id,
         }
@@ -133,33 +133,35 @@ class GIF:
 
     def fetch_many(
         self,
-        ids: list[int],
+        ids: str|list[str],
         *,
         random_id: Optional[str] = None,
         rating: Optional[str] = None,
     ) -> list[Gif]:
-        params = {"api_key": self.api_key, "random_id": random_id, "rating": rating}
-        _ids = ""
-        for id in ids:
-            if ids[-1] == id:
-                _ids += str(id)
-                break
-            _ids += str(id) + ", "
-
-        params["ids"] = _ids
-        return [Gif(data) for data in httpx.get(
-            self.Gif[:-1], params=params
-        ).json()["data"]]
+        if isinstance(ids, list):
+            ids = ", ".join([i for i in ids])
+        params = {"api_key": self.api_key, 'ids':ids, "random_id": random_id, "rating": rating}
+        data = httpx.get(f"{self.Gif}", params=params).json()
+        if data['data']:
+            data = data['data']
+            return [Gif(data[i]) for i in range(len(data))]
+        raise GiphyAPIError(data)
 
     def fetch_searches(
         self,
     ) -> list[str]:
         params = {"api_key": self.api_key}
-        return httpx.get(self.UrlTrending, params=params).json()["data"]
+        data = httpx.get(self.UrlTrending, params=params).json()
+        if data['data']:
+            return data["data"]
+        raise GiphyAPIError(data)
 
-    def fetch_relate_search(self, term: str): 
+    def fetch_related_search(self, term: str): 
         params = {"api_key": self.api_key, "term": term}
-        return httpx.get(self.UrlTag + term, params=params).json()["data"]["name"]
+        data = httpx.get(self.UrlTag + term, params=params).json()
+        if data['data']:
+            return data["data"]["name"]
+        raise GiphyAPIError(data)
 
     def fetch_channels(
         self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None
@@ -170,20 +172,26 @@ class GIF:
             "limit": limit, 
             "offset": offset
         }
-        res = httpx.get(self.UrlChannel, params=params).json()["data"]
-        if not res:
-            return []
-        return [Channel(data) for data in res]
+        data = httpx.get(self.UrlChannel, params=params).json()
+        if data['data']:
+            return [Channel(i) for i in data['data']]
+        raise GiphyAPIError(data)
 
     def fetch_tag_autocomplete(
         self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None
     ) -> list[Term]:
         params = {"api_key": self.api_key, "q": q, "limit": limit, "offset": offset}
-        return [Term(data) for data in httpx.get(self.Gif + "search/tags", params=params).json()["data"]]
+        data = httpx.get(self.Gif + "search/tags", params=params).json()
+        if data['data']:
+            return [Term(i) for i in data['data']]
+        raise GiphyAPIError(data)
 
     def fetch_categories(self) -> list[Category]: 
         params = {"api_key": self.api_key}
-        return  [Category(data) for data in httpx.get(self.Gif + "categories", params=params).json()["data"]]
+        data = httpx.get(self.Gif + "categories", params=params).json()
+        if data['data']:
+            return [Category(i) for i in data['data']]
+        raise GiphyAPIError(data)
 
 
     def upload(
@@ -280,14 +288,14 @@ class Sticker:
 
     def random(
         self,
-        tags: Optional[str] = None,
+        tag: Optional[str] = None,
         *,
         rating: Optional[str] = None,
         random_id: Optional[str] = None,
     ) -> sticker:
         params = {
             "api_key": self.api_key,
-            "tag": tags,
+            "tag": tag,
             "rating": rating,
             "random_id": random_id,
         }
