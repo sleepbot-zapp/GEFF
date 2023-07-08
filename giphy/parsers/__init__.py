@@ -1,7 +1,7 @@
 from .gif import *
 from .channel import *
-from .tags import *
+from .term import *
 from .categories import *
+from .clip import *
 
-
-__all__ = {"Gif", "Channel", "Term", "Category", "Sticker", "Emoji"}
+__all__ = {"Gif", "Channel", "Term", "Category", "Sticker", "Emoji", "Clip"}
