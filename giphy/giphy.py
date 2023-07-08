@@ -1,7 +1,7 @@
 from __future__ import annotations
 from httpx import get, post
 from .parsers import Gif, Channel, Term, Category, Sticker as sticker, Emoji as emoji
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, List
 from json import dumps
 from .errors import GiphyAPIError
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ class GIF:
         rating: Optional[str] = None,
         random_id: Optional[str] = None,
         bundle: Optional["str"] = None,
-    ) -> list[Gif]:
+    ) -> Tuple[Gif]:
         params = {
             "api_key": self.api_key,
             "limit": limit,
@@ -38,7 +38,7 @@ class GIF:
         data = get(f"{self.Gif}trending", params=params).json()
         if data['data']:
             data = data['data']
-            return [Gif(data[i]) for i in range(len(data))]
+            return tuple(Gif(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
     def search(
@@ -51,7 +51,7 @@ class GIF:
         lang: Optional[str] = None,
         random_id: Optional[str] = None,
         bundle: Optional["str"] = None,
-    ) -> list[Gif]:
+    ) -> Tuple[Gif]:
         params = {
             "api_key": self.api_key,
             "q": q,
@@ -65,7 +65,7 @@ class GIF:
         data = get(f"{self.Gif}trending", params=params).json()
         if data['data']:
             data = data['data']
-            return [Gif(data[i]) for i in range(len(data))]
+            return tuple(Gif(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
     def translate(
@@ -133,39 +133,39 @@ class GIF:
 
     def fetch_many(
         self,
-        ids: str|list[str],
+        ids: str|List[str],
         *,
         random_id: Optional[str] = None,
         rating: Optional[str] = None,
-    ) -> list[Gif]:
+    ) -> Tuple[Gif]:
         if isinstance(ids, list):
             ids = ", ".join([i for i in ids])
         params = {"api_key": self.api_key, 'ids':ids, "random_id": random_id, "rating": rating}
         data = get(f"{self.Gif}", params=params).json()
         if data['data']:
             data = data['data']
-            return [Gif(data[i]) for i in range(len(data))]
+            return tuple(Gif(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
     def fetch_searches(
         self,
-    ) -> list[str]:
+    ) -> Tuple[str]:
         params = {"api_key": self.api_key}
         data = get(self.UrlTrending, params=params).json()
         if data['data']:
-            return data["data"]
+            return tuple(data["data"])
         raise GiphyAPIError(data)
 
-    def fetch_related_search(self, term: str): 
+    def fetch_related_search(self, term: str) -> Tuple[str]: 
         params = {"api_key": self.api_key, "term": term}
         data = get(self.UrlTag + term, params=params).json()
         if data['data']:
-            return data["data"]["name"]
+            return tuple(data["data"]["name"])
         raise GiphyAPIError(data)
 
     def fetch_channels(
         self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None
-    ) -> list[Optional[Channel]]:
+    ) -> Tuple[Channel]:
         params = {
             "api_key": self.api_key, 
             "q": q,
@@ -174,23 +174,23 @@ class GIF:
         }
         data = get(self.UrlChannel, params=params).json()
         if data['data']:
-            return [Channel(i) for i in data['data']]
+            return tuple(Channel(i) for i in data['data'])
         raise GiphyAPIError(data)
 
     def fetch_tag_autocomplete(
         self, q: str, *, limit: Optional[int] = None, offset: Optional[int] = None
-    ) -> list[Term]:
+    ) -> Tuple[Term]:
         params = {"api_key": self.api_key, "q": q, "limit": limit, "offset": offset}
         data = get(self.Gif + "search/tags", params=params).json()
         if data['data']:
-            return [Term(i) for i in data['data']]
+            return tuple(Term(i) for i in data['data'])
         raise GiphyAPIError(data)
 
-    def fetch_categories(self) -> list[Category]: 
+    def fetch_categories(self) -> Tuple[Category]: 
         params = {"api_key": self.api_key}
         data = get(self.Gif + "categories", params=params).json()
         if data['data']:
-            return [Category(i) for i in data['data']]
+            return tuple(Category(i) for i in data['data'])
         raise GiphyAPIError(data)
 
 
@@ -234,7 +234,7 @@ class Sticker:
         limit: Optional[int] = None,
         offset: Optional[int] = None,
         rating: Optional[str] = None,
-    ) -> list[sticker]:
+    ) -> Tuple[sticker]:
         params = {
             "api_key": self.api_key,
             "limit": limit,
@@ -244,7 +244,7 @@ class Sticker:
         data = get(f"{self.BaseUrl}trending", params=params).json()
         if data['data']:
             data = data['data']
-            return [sticker(data[i]) for i in range(len(data))]
+            return tuple(sticker(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
     def search(
@@ -254,7 +254,7 @@ class Sticker:
         limit: Optional[int] = None,
         offset: Optional[int] = None,
         rating: Optional[str] = None,
-    ) -> list[sticker]:
+    ) -> Tuple[sticker]:
         params = {
             "api_key": self.api_key,
             "q": q,
@@ -265,7 +265,7 @@ class Sticker:
         data = get(f"{self.BaseUrl}trending", params=params).json()
         if data['data']:
             data = data['data']
-            return [sticker(data[i]) for i in range(len(data))]
+            return tuple(sticker(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
     def translate(
@@ -312,15 +312,15 @@ class Emoji:
     def __init__(self, api_key: str) -> None:
         self.api_key = api_key
 
-    def fetch(self, *, limit: Optional[int] = None, offset: Optional[int] = None) -> list[emoji]:
+    def fetch(self, *, limit: Optional[int] = None, offset: Optional[int] = None) -> Tuple[emoji]:
         params = {"api_key": self.api_key, "limit": limit, "offset": offset}
         data = get(f"{self.BaseUrl}trending", params=params).json()
         if data['data']:
             data = data['data']
-            return [emoji(data[i]) for i in range(len(data))]
+            return tuple(emoji(data[i]) for i in range(len(data)))
         raise GiphyAPIError(data)
 
-    def get_variations(self, *, gif_id: Optional[int]) -> emoji|None:
+    def get_variations(self, *, gif_id: Optional[int]) -> emoji:
         params = {"api_key": self.api_key}
         data = get(self.BaseUrl+f"/{gif_id}/variations", params=params).json()
         if data['data']:
