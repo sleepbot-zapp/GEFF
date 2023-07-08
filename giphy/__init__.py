@@ -1,6 +1,8 @@
 from .giphy import *
 
 __all__ = {
-    "Sticker",
     "GIF",
+    "Sticker",
+    "Emoji",
+    "Clip"
 }
